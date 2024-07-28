@@ -1,25 +1,98 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import axios from 'axios';
+import Spinner from './spinner';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [selectedOption, setSelectedOption] = useState('text');
+  const [text, setText] = useState('');
+  const [file, setFile] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [message, setMessage] = useState('');
+  const [uri, setUri] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile && selectedFile.type === 'text/plain') {
+      setFile(selectedFile);
+      setErrorMessage('');
+    } else {
+      setFile(null);
+      setErrorMessage('Unsupported file type. Please upload a text file.');
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (selectedOption === 'text' && text) {
+      // setLoading(true);
+      // try {
+      //   const response = await axios.post('http://127.0.0.1:5000/upload', text, {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   });
+      //   setMessage(response.data.message);
+      //   setUri(response.data.uri);
+      //   setLoading(false);
+      // }
+      // catch (error) {
+      //   setMessage(error || "Some Error occured");
+      //   setLoading(false);
+      // }
+
+    } else if (selectedOption === 'file' && file) {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        setMessage(response.data.message);
+        setUri(response.data.uri);
+        setLoading(false);
+      }
+      catch (error) {
+        setMessage(error);
+        setLoading(false);
+      }
+    }
+  }
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
+
+    <div className="app-container">
+      <h1>Text to Speech</h1>
+      <div className="button-group">
+        <button onClick={() => setSelectedOption('text')} className={selectedOption === 'text' ? 'active' : ''}>Text</button>
+        <button onClick={() => setSelectedOption('file')} className={selectedOption === 'file' ? 'active' : ''}>Files</button>
+      </div>
+      <div className="input-group">
+        {selectedOption === 'text' ? (
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Enter your text here..."
+            className="text-input"
+          />
+        ) : (
+          <div>
+            <input type="file" accept=".txt" onChange={handleFileChange} />
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+          </div>
+        )}
+      </div>
+      <button className="convert-button" onClick={handleSubmit}>Convert</button>
+      {loading && <Spinner />}
+      {message && <p>{message}</p>}
+      {uri && <p>Download your file <a href={uri}>here</a>.</p>}
     </div>
   );
-}
+};
 
 export default App;
