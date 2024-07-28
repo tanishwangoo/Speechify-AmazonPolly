@@ -22,24 +22,32 @@ const App = () => {
       setErrorMessage('Unsupported file type. Please upload a text file.');
     }
   };
-
+  const handleReset = () =>{
+    setText('');
+    setFile(null);
+    setErrorMessage('');
+    setMessage('');
+    setUri('');
+    setLoading(false);
+    setSelectedOption('text');
+  }
   const handleSubmit = async () => {
     if (selectedOption === 'text' && text) {
-      // setLoading(true);
-      // try {
-      //   const response = await axios.post('http://127.0.0.1:5000/upload', text, {
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //   });
-      //   setMessage(response.data.message);
-      //   setUri(response.data.uri);
-      //   setLoading(false);
-      // }
-      // catch (error) {
-      //   setMessage(error || "Some Error occured");
-      //   setLoading(false);
-      // }
+      setLoading(true);
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/upload', {text}, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        setMessage(response.data.message);
+        setUri(response.data.uri);
+        setLoading(false);
+      }
+      catch (error) {
+        setMessage(error || "Some Error occured");
+        setLoading(false);
+      }
 
     } else if (selectedOption === 'file' && file) {
       setLoading(true);
@@ -56,7 +64,7 @@ const App = () => {
         setLoading(false);
       }
       catch (error) {
-        setMessage(error);
+        setMessage(error || "Some error occured");
         setLoading(false);
       }
     }
@@ -88,9 +96,10 @@ const App = () => {
         )}
       </div>
       <button className="convert-button" onClick={handleSubmit}>Convert</button>
+      <button className="reset-button" onClick={handleReset}>Reset</button>
       {loading && <Spinner />}
       {message && <p>{message}</p>}
-      {uri && <p>Download your file <a href={uri}>here</a>.</p>}
+      {uri && <p>Download your file <a target="_blank" rel="noreferrer" href={uri}>here</a>.</p>}
     </div>
   );
 };

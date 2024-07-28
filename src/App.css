@@ -50,6 +50,14 @@ body {
   border-radius: 4px;
 }
 
+.reset-button {
+  background: #d23431;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 .convert-button {
   background: #28a745;
   color: white;
@@ -60,6 +68,9 @@ body {
   transition: background 0.3s;
 }
 
+.reset-button:hover {
+  background-color:#832220;
+}
 .convert-button:hover {
   background: #218838;
 }
