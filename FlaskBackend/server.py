@@ -27,6 +27,21 @@ def read_text_file(file_path): #extracting text for synthesis
     except IOError:
         print(f"An error occurred while reading the file {file_path}.")
 
+def sendVoiceData(polly):
+    voices = {
+        "Female" : [],
+        "Male" : []
+    }   
+    male_voices = []
+    PollyData = session.client("polly")
+    response = polly.describe_voices(LanguageCode='en-US')
+    for data in response['Voices']:
+       if data['Gender'] == 'Female':
+          voices['Female'].append(data['Name'])
+       elif data['Gender'] == 'Male':
+            voices['Male'].append(data['Name'])
+    return voices
+
 def generate_URL(bucket_name, obj_key, expiration = 3600):
     S3 = session.client('s3')
     try:
@@ -38,10 +53,14 @@ def generate_URL(bucket_name, obj_key, expiration = 3600):
         return None
     return response
 
-    
-
+@app.route('/voices', methods=['GET']) 
+def sendVoice():
+    polly = session.client("polly")
+    voices = sendVoiceData(polly)
+    return jsonify(voices)
 
 @app.route('/upload', methods=['POST'])
+
 
 def upload_file():
 
@@ -97,6 +116,9 @@ def upload_file():
             return jsonify({"message": "Task Completed", "uri": output_uri}), 200
         else:
             time.sleep(5)
+
+
+
 
 
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Voices from './Voices';
 import Spinner from './spinner';
 import './App.css';
 
@@ -79,6 +80,7 @@ const App = () => {
       <div className="button-group">
         <button onClick={() => setSelectedOption('text')} className={selectedOption === 'text' ? 'active' : ''}>Text</button>
         <button onClick={() => setSelectedOption('file')} className={selectedOption === 'file' ? 'active' : ''}>Files</button>
+        <Voices/>
       </div>
       <div className="input-group">
         {selectedOption === 'text' ? (
@@ -95,6 +97,7 @@ const App = () => {
           </div>
         )}
       </div>
+     
       <button className="convert-button" onClick={handleSubmit}>Convert</button>
       <button className="reset-button" onClick={handleReset}>Reset</button>
       {loading && <Spinner />}

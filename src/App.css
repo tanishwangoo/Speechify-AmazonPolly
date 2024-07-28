@@ -19,6 +19,8 @@ body {
 }
 
 .button-group {
+  display: flex;
+  flex-direction: row;
   margin-bottom: 20px;
 }
 
@@ -34,6 +36,7 @@ body {
 }
 
 .button-group button.active, .button-group button:hover {
+
   background: #007bff;
   color: white;
 }
