@@ -12,6 +12,8 @@ const App = () => {
   const [message, setMessage] = useState('');
   const [uri, setUri] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState('');
+  const [ResponseMessage, setResponseMessage] = useState('');
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -32,9 +34,22 @@ const App = () => {
     setLoading(false);
     setSelectedOption('text');
   }
+  const sendselVoice = async () =>{
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/selectedVoice', { Voice: selectedVoice }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setResponseMessage(`Selected voice: ${response.data.selectedVoice}`);
+    } catch (error) {
+      setResponseMessage('Error submitting selected voice');
+    }
+  }
   const handleSubmit = async () => {
     if (selectedOption === 'text' && text) {
       setLoading(true);
+      await sendselVoice();
       try {
         const response = await axios.post('http://127.0.0.1:5000/upload', {text}, {
           headers: {
@@ -49,9 +64,11 @@ const App = () => {
         setMessage(error || "Some Error occured");
         setLoading(false);
       }
+    
 
     } else if (selectedOption === 'file' && file) {
       setLoading(true);
+      await sendselVoice();
       const formData = new FormData();
       formData.append('file', file);
       try {
@@ -68,6 +85,7 @@ const App = () => {
         setMessage(error || "Some error occured");
         setLoading(false);
       }
+
     }
   }
 
@@ -80,7 +98,7 @@ const App = () => {
       <div className="button-group">
         <button onClick={() => setSelectedOption('text')} className={selectedOption === 'text' ? 'active' : ''}>Text</button>
         <button onClick={() => setSelectedOption('file')} className={selectedOption === 'file' ? 'active' : ''}>Files</button>
-        <Voices/>
+        <Voices Voice_choice = {setSelectedVoice}/>
       </div>
       <div className="input-group">
         {selectedOption === 'text' ? (

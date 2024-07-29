@@ -16,6 +16,8 @@ import time
 session = Session(profile_name="default")
 app = Flask(__name__)
 CORS(app)
+
+selectedVoice = {"selectedVoice": "Danielle"}
 def read_text_file(file_path): #extracting text for synthesis
     try:
         with open(file_path, 'r') as file:
@@ -34,14 +36,13 @@ def sendVoiceData(polly):
     }   
     male_voices = []
     PollyData = session.client("polly")
-    response = polly.describe_voices(LanguageCode='en-US')
+    response = polly.describe_voices(Engine='standard', LanguageCode='en-US')
     for data in response['Voices']:
-       if data['Gender'] == 'Female':
-          voices['Female'].append(data['Name'])
-       elif data['Gender'] == 'Male':
-            voices['Male'].append(data['Name'])
+        if (data['Gender'] == 'Female'):
+             voices['Female'].append(data['Name'])
+        elif (data['Gender'] == 'Male') :
+                voices['Male'].append(data['Name'])
     return voices
-
 def generate_URL(bucket_name, obj_key, expiration = 3600):
     S3 = session.client('s3')
     try:
@@ -53,6 +54,19 @@ def generate_URL(bucket_name, obj_key, expiration = 3600):
         return None
     return response
 
+
+
+@app.route('/selectedVoice', methods=['POST'])
+def getselectedVoice():
+    global selectedVoice
+    if not request.is_json or 'Voice' not in request.json:
+        selectedVoice = {"selectedVoice": "Danielle"}
+    else:
+        selectedVoice = {"selectedVoice": request.json['Voice']}
+        print(selectedVoice['selectedVoice'])
+    
+    return ''
+
 @app.route('/voices', methods=['GET']) 
 def sendVoice():
     polly = session.client("polly")
@@ -63,6 +77,7 @@ def sendVoice():
 
 
 def upload_file():
+    global selectedVoice
 
     if 'file' not in request.files and 'text' not in request.json:
         return jsonify({"error": "No file or text input provided"}), 400
@@ -90,9 +105,14 @@ def upload_file():
     
     polly = session.client("polly")
     
+   
 
     try:
-        response = polly.start_speech_synthesis_task(Engine='standard', OutputFormat = 'mp3', OutputS3BucketName='polly-test-bucket1', Text= text_content, VoiceId = 'Aditi')
+        response = polly.start_speech_synthesis_task(Engine='standard', 
+                                                     OutputFormat = 'mp3', 
+                                                     OutputS3BucketName='polly-test-bucket1', 
+                                                     Text= text_content, 
+                                                     VoiceId = selectedVoice['selectedVoice'])
     
     except (BotoCoreError, ClientError) as error:
     # The service returned an error, exit gracefully

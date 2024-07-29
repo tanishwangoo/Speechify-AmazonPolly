@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function Voices(){
+function Voices({Voice_choice}){
+    let sel_voice;
     const [voices, setVoices] = useState({ Male: [], Female: [] });
     const [error, setError] = useState('');
-    const [selectedVoice, setSelectedVoice] = useState('');
+
+
     useEffect(() => {
     const fetchVoices = async () =>{
         try{
@@ -21,7 +23,8 @@ function Voices(){
 
 
 const handleVoiceChange = (event) => {
-    setSelectedVoice(event.target.value);
+    Voice_choice(event.target.value);
+    sel_voice = event.target.value;
   };
 
 
@@ -32,7 +35,7 @@ if (error) {
   return (
     <div>
         Availale voices
-        <select value={selectedVoice} onChange={handleVoiceChange}>
+        <select value={sel_voice} onChange={handleVoiceChange}>
         <option value="" disabled>Select a Male voice</option>
         {voices.Male.map((voice, index) => (
           <option key={index} value={voice}>{voice}</option>
